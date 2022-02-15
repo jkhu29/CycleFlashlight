@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">MyTorch</string>
+    <string name="cycle_time">Cycle Time:</string>
+    <string name="your_cycle_time">Your Cycle Time:</string>
+    <string name="make_sure">确定</string>
+</resources>
