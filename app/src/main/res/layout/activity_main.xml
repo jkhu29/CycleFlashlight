@@ -4,75 +4,100 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="#EEEEEE"
     tools:context=".MainActivity">
 
     <ImageButton
         android:id="@+id/btn_switch"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="159dp"
-        android:layout_marginBottom="99dp"
+        android:layout_marginTop="508dp"
         android:background="@drawable/torch_turn_off"
-        android:padding="40dp"
+        android:padding="20dp"
         android:scaleType="fitXY"
         android:src="@mipmap/torch"
-        app:layout_constraintBottom_toTopOf="@+id/editText"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.28"
         app:layout_constraintWidth_percent="0.4"
         tools:ignore="ContentDescription,SpeakableTextPresentCheck" />
 
     <com.example.mytorch.EditTextWithClear
-        android:id="@+id/editText"
+        android:id="@+id/editTextP"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="448dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginBottom="34dp"
+        android:layout_marginTop="41dp"
         android:drawableEnd="@drawable/ic_baseline_clear_24"
-        android:hint="@string/cycle_time"
+        android:hint="@string/p"
         android:inputType="number"
         android:textColor="@color/black"
         android:textColorHint="@color/black"
         android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/button"
+        app:layout_constraintBottom_toTopOf="@+id/editTextV"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="41dp"
-        android:layout_marginBottom="362dp"
-        android:text="@string/your_cycle_time"
+    <com.example.mytorch.EditTextWithClear
+        android:id="@+id/editTextV"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:drawableEnd="@drawable/ic_baseline_clear_24"
+        android:hint="@string/v"
+        android:inputType="number"
         android:textColor="@color/black"
-        android:textSize="34sp"
-        app:layout_constraintBottom_toTopOf="@+id/editText"
+        android:textColorHint="@color/black"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/editTextBin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextP"
+        tools:ignore="MissingConstraints" />
+
+    <com.example.mytorch.EditTextWithClear
+        android:id="@+id/editTextBin"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="390dp"
+        android:drawableEnd="@drawable/ic_baseline_clear_24"
+        android:hint="@string/bin"
+        android:textColor="@color/black"
+        android:textColorHint="@color/black"
+        android:textSize="24sp"
+        android:inputType="number"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextV"
+        tools:ignore="MissingConstraints" />
 
     <Button
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="62dp"
+        android:layout_marginBottom="332dp"
         android:text="@string/make_sure"
         android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText"
         tools:ignore="TextContrastCheck" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="408dp"
+        android:text="@string/your_config_here"
+        android:textColor="@color/black"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

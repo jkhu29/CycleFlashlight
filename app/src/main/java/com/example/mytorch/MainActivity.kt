@@ -13,17 +13,24 @@ import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 import kotlin.concurrent.timerTask
+import kotlin.math.abs
 
 class MainActivity : AppCompatActivity() {
     private lateinit var cameraManager: CameraManager
     private lateinit var cameraId: String
     private lateinit var handler: Handler
-    private lateinit var timer: Timer
+    private lateinit var timerCycle: Timer
 
     private var isTorchOn = false
     private var isCycleOn = false
     private var isCycleTimeMade = false
-    private var torchCyclePeriod = 2000L
+    private var torchCyclePeriodP = 50L
+    private var torchCyclePeriodV = 50L
+    private var numP = 0
+    private var numV = 0
+    private var torchCyclePeriod = 1000L
+    private var torchCycleBin = "1100"
+    private var timeArr = LongArray(1)
 
     private val torchCallback = object: CameraManager.TorchCallback() {
         override fun onTorchModeUnavailable(camera_id: String) {
@@ -73,17 +80,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setCycleTime() {
-        editText.addTextChangedListener(object: TextWatcher{
+        // set Time P
+        editTextP.addTextChangedListener(object: TextWatcher{
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 isCycleTimeMade = false
             }
-
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 isCycleTimeMade = false
             }
-
             override fun afterTextChanged(p0: Editable?) {
-                val content:String=p0.toString()
+                val content:String = p0.toString()
                 button.setOnClickListener {
                     isCycleTimeMade = true
                 }
@@ -91,7 +97,63 @@ class MainActivity : AppCompatActivity() {
                     "" != content.trim { it <= ' ' }
                     && content.trim { it <= ' ' }.isNotEmpty()
                 ) {
-                    torchCyclePeriod = content.toLong()
+                    val timeP = content.toLong()
+                    torchCyclePeriodP = if (timeP in 5..50) { timeP } else { 50L }
+                    displayCycleTime()
+                }
+            }
+        })
+
+        // set Time V
+        editTextV.addTextChangedListener(object: TextWatcher{
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                isCycleTimeMade = false
+            }
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                isCycleTimeMade = false
+            }
+            override fun afterTextChanged(p0: Editable?) {
+                val content:String = p0.toString()
+                button.setOnClickListener {
+                    isCycleTimeMade = true
+                }
+                if (
+                    "" != content.trim { it <= ' ' }
+                    && content.trim { it <= ' ' }.isNotEmpty()
+                ) {
+                    val timeV = content.toLong()
+                    torchCyclePeriodV = if (timeV in 5..50) { timeV } else { 50L }
+                    displayCycleTime()
+                }
+            }
+        })
+
+        // set Binary Code
+        editTextBin.addTextChangedListener(object: TextWatcher{
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                isCycleTimeMade = false
+            }
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                isCycleTimeMade = false
+            }
+            override fun afterTextChanged(p0: Editable?) {
+                val content:String = p0.toString()
+                button.setOnClickListener {
+                    isCycleTimeMade = true
+                }
+                if (
+                    "" != content.trim { it <= ' ' }
+                    && content.trim { it <= ' ' }.isNotEmpty()
+                ) {
+                    torchCycleBin = content
+                    torchCycleBin.filterNot {
+                        it != '1' || it != '0'
+                    }
+                    numP = torchCycleBin.count{it == '1'}
+                    numV = torchCycleBin.count{it == '0'}
+                    if (numP + numV != 0)
+                        torchCyclePeriod = (2 * torchCyclePeriodP + torchCyclePeriodV) * numP +
+                                2 * torchCyclePeriodP * numV
                     displayCycleTime()
                 }
             }
@@ -100,7 +162,9 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun displayCycleTime() {
-        textView.text = "Your Cycle Time is :$torchCyclePeriod"
+        textView.text = "P: $torchCyclePeriodP, V: $torchCyclePeriodV;\n" +
+                "CycleTime: $torchCyclePeriod\n" +
+                "NumP: $numP, NumV: $numV"
     }
 
     private fun toggleTorchCycle() {
@@ -114,17 +178,53 @@ class MainActivity : AppCompatActivity() {
         )
         try {
             if (isCycleOn) {
-                timer = Timer()
-                val timerTask: TimerTask = object : TimerTask() {
-                    override fun run() {
-                        toggleTorch()
+                timerCycle = Timer()
+                timeArr = LongArray(torchCycleBin.count() * 2 + 1)
+                var cnt = 0
+                timeArr[cnt] = 0
+                for (i in torchCycleBin.indices) {
+                    if (i > 0) {
+                        if (torchCycleBin[i] == '0') {
+                            timeArr[cnt+1] = timeArr[cnt] + torchCyclePeriodP
+                            cnt += 1
+                            timeArr[cnt+1] = timeArr[cnt] + torchCyclePeriodP
+                            cnt += 1
+                        } else {
+                            if (torchCycleBin[i] == '1') {
+                                timeArr[cnt+1] = timeArr[cnt] + torchCyclePeriodP + torchCyclePeriodV
+                                cnt += 1
+                                timeArr[cnt+1] = timeArr[cnt] + torchCyclePeriodP
+                                cnt += 1
+                            }
+                        }
                     }
                 }
-                timer.schedule(timerTask, 0, torchCyclePeriod)
+                val timerCycleTask: TimerTask = object : TimerTask() {
+                    override fun run() {
+                        val time = System.currentTimeMillis()
+                        for (i in timeArr.indices) {
+                            while (true) {
+                                if (abs(System.currentTimeMillis() - timeArr[i] - time) <= 2L) {
+                                    toggleTorch()
+                                    break
+                                } else {
+                                    if (System.currentTimeMillis() > torchCyclePeriod + time + 2L)
+                                        break
+                                }
+                            }
+                        }
+
+                        if (isTorchOn) {
+                            toggleTorch()
+                        }
+                    }
+                }
+                timerCycle.schedule(timerCycleTask, 0, torchCyclePeriod)
+                Thread.sleep(10L)
             }
             else {
-                timer.cancel()
-                timer.purge()
+                timerCycle.cancel()
+                timerCycle.purge()
                 if (isTorchOn)
                     toggleTorch()
             }
